@@ -1,31 +1,47 @@
 'use strict';
 const path = require('path');
-const autoprefixer = require('autoprefixer')
+const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
+  mode: 'development', // Pilih 'development' atau 'production'
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+    publicPath: '/', // Penting untuk path asset yang benar
+    clean: true, // Membersihkan folder dist sebelum build
   },
-
-
-  mode: 'production',
   devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'), // Serve dari folder dist
+    },
     client: {
       overlay: {
         errors: true,
         warnings: false,
       },
     },
+    hot: true, // Aktifkan hot module replacement
+    open: true, // Buka browser secara otomatis
   },
-
-  
   module: {
     rules: [
-      /* style and css loader */
+      {
+        test: /\.html$/,
+        use: 'html-loader'
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[name][ext]', // Simpan gambar di dist/images/ dengan nama asli
+        },
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'], // <--- INI YANG DIBUTUHKAN
+      },
       {
         test: /\.(scss)$/,
         use: [
@@ -35,19 +51,19 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: [require('autoprefixer')]
-              }
-            }
+                plugins: [autoprefixer],
+              },
+            },
           },
           {
             loader: 'sass-loader',
             options: {
-              implementation: require('sass'), // Gunakan Dart Sass
+              implementation: require('sass'),
               sassOptions: {
-                quietDeps: true // Suppress deprecation warnings
-              }
-            }
-          }
+                quietDeps: true,
+              },
+            },
+          },
         ],
       },
     ],
@@ -56,6 +72,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/template.html',
       filename: 'index.html',
+      inject: 'body', // Suntikkan bundle.js di bagian body
     }),
   ],
+  // Tambahan untuk mempermudah debugging
+  devtool: 'eval-source-map', // Hanya untuk development
 };

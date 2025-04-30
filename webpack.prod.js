@@ -1,23 +1,11 @@
-const { merge } = require("webpack-merge");
-const common = require("./webpack.config.js");
+const { merge } = require('webpack-merge');
+const common = require('./webpack.config.js');
 
 module.exports = merge(common, {
-  mode: "production",
-  module: {
-    rules: [
-      /* babel loader */
-      {
-        test: /\.js$/,
-        exclude: "/node_modules/",
-        use: [
-          {
-            loader: "babel-loader",
-            options: {
-              presets: ["@babel/preset-env"],
-            },
-          },
-        ],
-      },
-    ],
-  },
+  mode: 'production',
+  performance: {
+    hints: false,
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000
+  }
 });
